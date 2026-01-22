@@ -1,0 +1,48 @@
+{
+    "user":
+    {
+        "loginUser": "SELECT * FROM username WHERE (username_na = $1 OR username_em = $1) AND username_pa = $2;",
+        "verifyUser": "SELECT * FROM username WHERE (username_na = $1 OR username_em = $1);",
+        "registUser": "INSERT INTO username (username_na, username_pa, fk_profile_id, fk_person_id, username_em) VALUES ($1, $2, $3, (SELECT person_id FROM person WHERE person_ci = $4), $5);",
+        "updatePassword": "UPDATE username SET username_pa = $1 WHERE username_em = $2",
+        "getProfilesQuery": "SELECT profile_id AS id, profile_na AS name FROM profile;",
+        "verifyDuplicate": "SELECT p.person_ci, u.username_na, u.username_em FROM person AS p INNER JOIN username AS u ON p.person_id = u.fk_person_id WHERE p.person_ci = $1 OR u.username_na = $2 OR u.username_em = $3;",
+        "deleteUser": "DELETE FROM username WHERE username_na = $1;",
+        "getUser": "SELECT u.username_na, p.person_na, p.person_la_na, p.person_ci, u.username_em, STRING_AGG(e.enterprise_na, ', ') AS enterprises FROM username AS u INNER JOIN person AS p ON u.fk_person_id = p.person_id INNER JOIN person_enterprise pe ON p.person_id = pe.fk_person INNER JOIN enterprise AS e ON pe.fk_enterprise_id = e.enterprise_id WHERE u.username_na = $1 GROUP BY u.username_na, p.person_na, p.person_la_na, p.person_ci, u.username_em",
+        "updateValue":"UPDATE username SET username_na = $1, username_em = $2 WHERE username_na = $3;",
+        "getPersonWithout":"SELECT p.* FROM person p LEFT JOIN username u ON p.person_id = u.fk_person_id WHERE u.username_na IS NULL",
+        "getAllUsers":"SELECT u.username_na, u.username_em, pe.person_ci, p.profile_na FROM username u JOIN profile p ON u.fk_profile_id = p.profile_id JOIN person pe ON u.fk_person_id = pe.person_id WHERE u.fk_profile_id != 1"
+    },
+    "tx":
+    {
+        "permsTxQuery": "SELECT mp.fk_transaction_id AS tx_id, mp.fk_profile_id AS profile_id FROM method_permission AS mp;",
+        "txQuery": "SELECT t.transaction_id, m.method_na, o.object_na FROM transaction AS t INNER JOIN method AS m ON t.fk_method_id = m.method_id INNER JOIN object AS o ON m.fk_object_id = o.object_id;",
+        "addTxPerms": "INSERT INTO method_permission (fk_profile_id, fk_transaction_id) SELECT p.profile_id, t.transaction_id FROM profile p, transaction t WHERE NOT EXISTS (SELECT 1 FROM method_permission mp WHERE mp.fk_profile_id = p.profile_id AND mp.fk_transaction_id = t.transaction_id) AND p.profile_id = $1 AND t.transaction_id = $2;",
+        "deleteTxPerms": "DELETE FROM method_permission WHERE fk_profile_id = $1 AND fk_transaction_id = $2;"
+    },
+    "option":
+    {
+        "optionsQuery": "SELECT op.option_id, op.option_na, op.option_fu, op.option_pa, op.option_as, op.option_ge, co.component_na FROM option AS op INNER JOIN component AS co On op.fk_component_id = co.component_id;",
+        "permsOptQuery": "SELECT op.fk_option_id AS option_id, op.fk_profile_id AS profile_id FROM option_permission as op;",
+        "addOptPerms": "INSERT INTO option_permission (fk_profile_id, fk_option_id) SELECT p.profile_id, o.option_id FROM profile p, option o WHERE NOT EXISTS (SELECT 1 FROM option_permission op WHERE op.fk_profile_id = p.profile_id AND op.fk_option_id = o.option_id) AND p.profile_id = $1 AND o.option_id = $2;",
+        "deleteOptPerms": "DELETE FROM option_permission WHERE fk_profile_id = $1 AND fk_option_id = $2;"
+    },
+    "enterprise":
+    {
+        "registEnterprise": "INSERT INTO enterprise (enterprise_na, enterprise_ri, enterprise_de) VALUES ($1, $2, $3);",
+        "deleteEnterprise": "DELETE FROM enterprise AS e WHERE e.enterprise_ri = $1;",
+        "updateEnterprise": "UPDATE enterprise SET ${column} = $1 WHERE enterprise_na = $2;",
+        "regisPersonEnterprise": "INSERT INTO person_enterprise (fk_person, fk_enterprise_id) VALUES ((SELECT person_id FROM person WHERE person_ci = $1), (SELECT enterprise_id FROM enterprise WHERE enterprise_na = $2))",
+        "deletePersonEnterprise": "DELETE FROM person_enterprise WHERE fk_person = (SELECT person_id FROM person WHERE person_ci = $1) AND fk_enterprise_id = (SELECT enterprise_id FROM enterprise WHERE enterprise_na = $2);",
+        "getLastid": "SELECT * FROM person WHERE person_id = (SELECT MAX(person_id) FROM person);",
+        "getPersonsEnterprise": "SELECT p.person_na, p.person_la_na, p.person_ci FROM person p INNER JOIN person_enterprise pe ON p.person_id = pe.fk_person INNER JOIN enterprise e ON pe.fk_enterprise_id = e.enterprise_id WHERE e.enterprise_na = $1;",
+        "getEnterprises": "SELECT enterprise_na, enterprise_ri, enterprise_de FROM enterprise;"
+    },
+    "person":
+    {
+        "regisPerson": "INSERT INTO person (person_na, person_la_na, person_ci) VALUES ($1, $2, $3);",
+        "updatePerson": "UPDATE person SET ${column} = $1 WHERE person_ci = $2;",
+        "getPersons": "SELECT * FROM person;",
+        "getPerson": "SELECT CASE WHEN EXISTS (SELECT 1 FROM person WHERE person_ci = $1) THEN true ELSE false END AS person_exists;"
+    }
+}

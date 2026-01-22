@@ -1,0 +1,16 @@
+{
+    "name": "system-backend",
+    "type": "module",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {"dev": "node expressServer.js"},
+    "dependencies":
+    {
+        "cors": "^2.8.5",
+        "express": "^4.21.2",
+        "express-session": "^1.18.1",
+        "pg": "^8.16.0",
+        "nodemailer": "^7.0.5",
+        "path": "^0.12.7"
+    }
+}
