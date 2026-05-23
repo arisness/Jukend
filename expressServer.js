@@ -1,116 +1,41 @@
 import express from 'express';
-import https from 'https';
-import fs from 'fs';
-import cors from 'cors';
-import path from 'path';
-import * as classes from './modules/classesIndex.js';
+import userRoutes from './routes/userRoutes.js';
 import {runQuery} from './DBComponent.js';
+import * as classes from './modules/classesIndex.js';
 import {executeMethod} from './executeMethod.js';
-import {addTokens, findTokens, verifyTokens} from './passwordRecovery/tokenManager.js';
+import fs from 'fs';
+import { loadEnvFile } from 'process';
+loadEnvFile('./config/.env');
 const app = express();
-const ip = 'localhost';
-const port = 3000;
+const {HOST_IP, HOST_PORT} = process.env;
+
+//import https from 'https';
+//import cors from 'cors';
+//import path from 'path';
+
 //const frontendPath = path.join(import.meta.dirname, '..', 'frontend', 'dist');
 //const credentials = {key: fs.readFileSync('../https_certs/key.pem'), cert: fs.readFileSync('../https_certs/cert.pem')};
-const queries = JSON.parse(fs.readFileSync('./config/queries.json'));
-global.runQuery = runQuery;
-global.queries = queries;
-global.sessionHandler = new classes.Session(app);
-global.security = new classes.Security();
-global.logger = new classes.Logger();
+
+async function loadConfig(){
+    const queries = JSON.parse(fs.readFileSync('./config/queries.json'));
+    global.queries = queries;
+    global.runQuery = runQuery;
+    global.security = new classes.Security();
+    global.logger = new classes.Logger();
+    global.sessionHandler = new classes.Session(app);
+}
+await loadConfig()
+
 
 app.use(express.json());
 //app.use(cors({origin: `https://${ip}:5173`, credentials: true}));
 //app.use(express.static(frontendPath));
 
 //app.get('*', (req, res) => res.sendFile(path.join(frontendPath, 'index.html')));
-app.post('/login', async (req, res) =>
-{
-    if (sessionHandler.checkSession(req))
-    {
-        logger.error("Session already exists for this user.");
-        return res.status(200).json({status: 'success', message: 'User already has an active session.'});
-    }
-    else
-    {
-        const authResult = await sessionHandler.authenticate(req);
-        if (authResult.success)
-        {
-            console.log(req.session);
-            return res.status(200).json({status: 'success', message: authResult.message, user: req.session.user,
-                profile: req.session.profile});
-        }
-        else return res.status(401).json({status: 'error', message: authResult.message, user: '', profile: ''});
-    }
-});
 
-app.post('/register', async (req, res) =>
-{
-    try
-    {
-        const {username, email, password} = req.body;
-        const r = await runQuery([[queries.user.registerUser, [username, email, password]]]);
-        if (r.rowCount > 0) return res.status(201).json({status: 'success', message: 'User registered successfully.'});
-        else return res.status(400).json({status: 'error', message: 'Failed to register user.'});
-    }
-    catch (error)
-    {
-        logger.error(`Error during registration: ${error}`);
-        return res.status(500).json({status: 'error', message: 'Internal server error during registration.'});
-    }
-});
+app.use('/', userRoutes);
 
-app.post('/logout', (req, res) =>
-{
-    if (req.session && req.session.user)
-    {
-        if (sessionHandler.closeSession(req, res)) return res.status(200).json({status: "success", message: "Session destroyed"});
-        else return res.status(500).json({status: "error", message: "Failed to destroy session"});
-    }
-    else return res.status(200).json({status: "success", message: "No active session to destroy."});
-});
-
-app.post('/checkAuth', (req, res) =>
-{
-    if (sessionHandler.checkSession(req)) return res.status(200).json({isAuthenticated: true, user: req.session.user,
-        profile: req.session.profile});
-    else return res.status(401).json({isAuthenticated: false, user: '', profile: ''});
-});
-
-app.post('/getOpts', (req, res) =>
-{
-    const optsArr = security.filterOptions(req);
-    return res.status(200).json({status: "success", message: "Sent options to front.", options: optsArr});
-});
-
-app.post("/recoverPass", async (req, res) =>
-{
-    const user = await security.checkUser(req.body.email);
-    if (user)
-    {
-        if (addTokens(user.username, user.email, ip, port)) res.status(200).json({status: "success",
-            message: "Password reset email sent."});
-        else return res.status(404).json({status: "error", message: "Error sending email."});
-    }
-    else return res.status(404).json({status: "error", message: "No such user exists."});
-});
-
-app.post('/reset-password/:tokenTest', (req, res) =>
-{
-    const {tokenTest} = req.params;
-    if (findTokens(tokenTest)) return res.status(200).json({status: "success", message : "Token is valid."})
-    else res.status(404).json({status: "error", message: "Invalid or expired token"});
-});
-
-app.post('/reset-password', async (req, res) =>
-{
-    const {token, password} = req.body;
-    const {sts, msg} = await verifyTokens(token, password);
-    if (sts === 'success') return res.status(200).json({status: sts, message: msg});
-    else return res.status(404).json({status: sts, message: msg});
-});
-
-app.post('/toProcess', async (req, res) =>
+router.post('/toProcess', async (req, res) =>
 {
     if (!sessionHandler.checkSession(req))
     {
@@ -143,5 +68,5 @@ app.post('/toProcess', async (req, res) =>
 });
 
 //const httpsServer = https.createServer(credentials, app);
-//httpsServer.listen(port, () => {console.clear(); console.log(`Server running on https://${ip}:${port}`);});
-app.listen(port, () => {console.clear(); console.log(`Server running on http://${ip}:${port}`);});
+//httpsServer.listen(HOST_PORT, () => {console.clear(); console.log(`Server running on https://${HOST_IP}:${HOST_PORT}`);});
+app.listen(HOST_PORT, () => {console.clear(); console.log(`Server running on http://${HOST_IP}:${HOST_PORT}`);});
