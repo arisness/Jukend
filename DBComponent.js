@@ -1,6 +1,5 @@
 import {Pool} from 'pg';
 import fs from 'fs';
-const config = JSON.parse(fs.readFileSync('./config/db.json'));
 import { loadEnvFile } from 'process';
 loadEnvFile('./config/.env');
 const {DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT} = process.env;
