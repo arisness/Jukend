@@ -35,7 +35,13 @@ app.use(express.json());
 
 app.use('/', userRoutes);
 
-router.post('/toProcess', async (req, res) =>
+app.post('/getOpts', (req, res) =>
+{
+    const optsArr = security.filterOptions(req);
+    return res.status(200).json({status: "success", message: "Sent options to front.", options: optsArr});
+});
+
+app.post('/toProcess', async (req, res) =>
 {
     if (!sessionHandler.checkSession(req))
     {
