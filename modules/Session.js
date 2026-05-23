@@ -3,8 +3,9 @@ export default class Session
 {
     constructor(app)
     {
-        app.use(session({secret: 'web2-project', resave: false, saveUninitialized: false,
-            cookie: {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: true, sameSite: 'none'}}));
+       app.use(session({secret: 'web2-project', resave: false, saveUninitialized: false,
+            cookie: {maxAge: 24 * 60 * 60 * 1000, httpOnly: true, secure: false, sameSite: 'none'}}));
+        
     }
 
     checkSession(req) {return req.session && req.session.user && req.session.profile;}
@@ -16,7 +17,7 @@ export default class Session
             const r = await runQuery([[queries.user.loginUser, [req.body.user, req.body.pass]]]);
             if (r.rows.length > 0)
             {
-                req.session.user = r.rows[0].username_na;
+                req.session.user = r.rows[0].users_name;
                 req.session.profile = r.rows[0].fk_profile_id;
                 return {success: true, message: 'Authenticated and session created.'};
             }
