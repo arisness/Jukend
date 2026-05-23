@@ -1,11 +1,13 @@
 import {Pool} from 'pg';
 import fs from 'fs';
 const config = JSON.parse(fs.readFileSync('./config/db.json'));
-const {username, password, ip, port, database} = config.database;
+import { loadEnvFile } from 'process';
+loadEnvFile('./config/.env');
+const {DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT} = process.env;
 
 const pool = new Pool
 ({
-    connectionString: `postgres://${username}:${password}@${ip}:${port}/${database}`,
+    connectionString: `postgres://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
     ssl: false //false for local development, set to true and provide certs for production
 });
 
