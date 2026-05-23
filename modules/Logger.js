@@ -1,6 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
+/**
+ * Clase Logger para registrar mensajes de error, información, depuración y advertencias en archivos de texto.
+ * Los mensajes se guardan en archivos con un formato específico que incluye la fecha, hora, tipo de mensaje y el contenido del mensaje.
+ * Los archivos de log se organizan por fecha y hora, creando un nuevo archivo cada 6 horas.
+ * Cambiar a futuro por Bark o buscar otra manera de tener un logger
+ */
 export default class Logger
 {
     constructor()
