@@ -3,7 +3,8 @@
     {
         "loginUser": "SELECT * FROM security.users WHERE (users_name = $1 OR users_email = $1) AND users_password = $2;",
         "verifyUser": "SELECT * FROM security.users WHERE (users_name = $1 OR users_email = $1);",
-        "registUser": "INSERT INTO security.users (users_name, users_password, fk_profile_id, users_email) VALUES ($1, $2, $3, $4);",
+        "registerGeneralUser": "INSERT INTO security.users (users_name, users_password, users_email) VALUES ($1, $2, $3);",
+        "registerUser": "INSERT INTO security.users (users_name, users_password, users_email, fk_profile_id) VALUES ($1, $2, $3, $4);",
         "updatePassword": "UPDATE security.users SET users_password = $1 WHERE (users_email = $2 OR users_name = $2);",
         "deleteUser": "DELETE FROM security.users WHERE users_name = $1 OR users_email = $1;",
         "getUser": "SELECT u.users_name, u.users_email FROM security.users AS u WHERE u.users_name = $1 OR u.users_email = $1;",
