@@ -6,7 +6,7 @@ const {username, password, ip, port, database} = config.database;
 const pool = new Pool
 ({
     connectionString: `postgres://${username}:${password}@${ip}:${port}/${database}`,
-    ssl: true
+    ssl: false //false for local development, set to true and provide certs for production
 });
 
 /**
