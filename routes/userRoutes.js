@@ -28,9 +28,8 @@ router.post('/register', async (req, res) =>
     try
     {
         const {username, email, password} = req.body;
-        const r = await runQuery([[queries.user.registerUser, [username, email, password]]]);
-        if (r.rowCount > 0) return res.status(201).json({status: 'success', message: 'User registered successfully.'});
-        else return res.status(400).json({status: 'error', message: 'Failed to register user.'});
+        const r = await runQuery([[queries.user.registerGeneralUser, [username, email, password]]]);
+        return res.status(201).json({status: 'success', message: 'User registered successfully.'});
     }
     catch (error)
     {
@@ -56,18 +55,12 @@ router.post('/checkAuth', (req, res) =>
     else return res.status(401).json({isAuthenticated: false, user: '', profile: ''});
 });
 
-router.post('/getOpts', (req, res) =>
-{
-    const optsArr = security.filterOptions(req);
-    return res.status(200).json({status: "success", message: "Sent options to front.", options: optsArr});
-});
-
 router.post("/recoverPass", async (req, res) =>
 {
     const user = await security.checkUser(req.body.email);
     if (user)
     {
-        if (addTokens(user.username, user.email, HOST_IP, HOST_PORT)) res.status(200).json({status: "success",
+        if (addTokens(user.username, user.email)) res.status(200).json({status: "success",
             message: "Password reset email sent."});
         else return res.status(404).json({status: "error", message: "Error sending email."});
     }
