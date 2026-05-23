@@ -8,7 +8,7 @@ const removeToken = (index, msg) =>
     if (msg) console.log(msg);
 }
 
-export const addTokens = (username, email, ip, port) =>
+export const addTokens = (username, email) =>
 {
     const token = crypto.randomBytes(20).toString('hex');
     const expirationTime = Date.now() + (3600000 * 24);
@@ -22,7 +22,7 @@ export const addTokens = (username, email, ip, port) =>
         }
     }
     passwordResetTokens.push({token: token, expireDate: expirationTime, email: email});
-    if (sendMail(username, email, ip, port, token)) return true;
+    if (sendMail(username, email, token)) return true;
     else return false;
 }
 
