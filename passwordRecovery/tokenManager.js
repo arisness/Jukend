@@ -10,7 +10,7 @@ const removeToken = (index, msg) =>
 
 export const addTokens = (username, email) =>
 {
-    const token = crypto.randomBytes(20).toString('hex');
+    const token = crypto.randomInt(0, 1000000).toString().padStart(6, '0');
     const expirationTime = Date.now() + (3600000 * 24);
         
     for (let i = 0; i < passwordResetTokens.length; i++)
