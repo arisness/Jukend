@@ -14,23 +14,22 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-export const sendMail = async (username, user, token) =>
+export const sendMail = async (username, email, token) =>
 {
     const passwordLink = `https://${process.env.HOST_IP}:${process.env.HOST_PORT}/reset-password/:${token}`;
-    const htmlEmail = htmlTemplate.replace(/{{user}}/g, username).replace(/{{passwordLink}}/g, passwordLink);
+    const htmlEmail = htmlTemplate.replace(/{{username}}/g, username).replace(/{{passwordLink}}/g, passwordLink).replace(/{{token}}/g, token);
     const mailOptions =
     {
         from: process.env.NM_USER,
-        to: user,
+        to: email,
         subject: 'Password Reset',
         html: htmlEmail
     };
-
     transporter.sendMail(mailOptions, (error, info) =>
     {
         if (error)
         {
-            console.log(error);
+            console.log(error.message);
             return false;
         }
         else
