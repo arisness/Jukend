@@ -5,18 +5,20 @@
             <div style="background-color: #333; color: #4A90E2; padding: 2px; text-align: center;">
                 <h2>Password Reset</h2>
             </div>
-            <div style="text-align: center;"> <p>Dear {{user}},</p>
-                <p>We have received a request to reset your password.
+            <div style="text-align: center;"> <p>Dear {{username}},</p>
+                <!--<p>We have received a request to reset your password.
                     If this was you, please click on the button below to continue.</p>
                 <a href="{{passwordLink}}" target="_blank" style="display: block; width: 200px; padding: 15px;
                     background-color: #4A90E2; color: white; font-family: Arial, sans-serif; font-size: 16px;
                     border-radius: 5px; text-decoration: none; margin: 20px auto; text-align: center;
                     box-sizing: border-box;">
-                    Reset your password</a>
+                    Reset your password</a>-->
+                <p>We have received a request to reset your password. If this was you, please use the code below to continue:</p>
+                <h2 style="color: #4A90E2;">{{token}}</h2>
                 <p>Otherwise, you may disregard this email. Thank you.</p>
-            </div>
-            <div style="margin-top: 20px; text-align: center; font-size: 0.9em;">
-                <p>Web 2 Project. All rights reserved.</p>
+                <div style="margin-top: 20px; text-align: center; font-size: 0.9em;">
+                    <p>Web 2 Project. All rights reserved.</p>
+                </div>
             </div>
         </div>
     </body>
