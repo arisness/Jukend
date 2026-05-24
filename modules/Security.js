@@ -49,7 +49,7 @@ export default class Security
         try
         {
             const r = await runQuery([[queries.user.verifyUser, [emailOrUsername]]]);
-            if (r.rows.length > 0) return {username: r.rows[0].username_name, email: r.rows[0].username_email};
+            if (r.rows.length > 0) return {username: r.rows[0].users_name, email: r.rows[0].users_email};
             else return false;
         }
         catch (error)
@@ -70,7 +70,7 @@ export default class Security
         try
         {
             const passwordCheck = await runQuery([[queries.user.verifyUser, [email]]]);
-            if (password === passwordCheck.rows[0].username_password) return "This is your current password.";
+            if (password === passwordCheck.rows[0].users_password) return "This is your current password.";
             else
             {
                 await runQuery([[queries.user.updatePassword, [password, email]]]);
