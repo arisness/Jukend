@@ -1,4 +1,4 @@
-export class UserManagement
+class UserManagement
 {
     async getUsers() {
         const result = await runQuery([[queries.user.getAllUsers, []]]);
@@ -17,3 +17,6 @@ export class UserManagement
     }
     async updateValues(username, email, oldUsername) {await runQuery([[queries.user.updateValue, [username, email, oldUsername]]]);}
 }
+
+const userManagement = new UserManagement();
+export default userManagement;
