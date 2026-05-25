@@ -38,27 +38,6 @@ export default class Security
         profileCheck.rows.forEach(row => this.profileMap.set(row.id, row.name));
     }
 
-    // Methods for user management
-    /**
-     * Checks user existence by email or username, returns false if user doesn't exist, otherwise returns an object with username and email
-     * @param {string} emailOrUsername 
-     * @returns {Promise<Object|boolean>}
-     */
-    async checkUser(emailOrUsername)
-    {
-        try
-        {
-            const r = await runQuery([[queries.user.verifyUser, [emailOrUsername]]]);
-            if (r.rows.length > 0) return {username: r.rows[0].users_name, email: r.rows[0].users_email};
-            else return false;
-        }
-        catch (error)
-        {
-            logger.error(error);
-            return false;
-        }
-    }
-
     /**
      * Resets the user's password
      * @param {string} password 
