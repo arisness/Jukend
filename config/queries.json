@@ -8,7 +8,7 @@
         "updatePassword": "UPDATE security.users SET users_password = $1 WHERE (users_email = $2 OR users_name = $2);",
         "deleteUser": "DELETE FROM security.users WHERE users_name = $1 OR users_email = $1;",
         "getUser": "SELECT u.users_name, u.users_email FROM security.users AS u WHERE u.users_name = $1 OR u.users_email = $1;",
-        "updateValue":"UPDATE security.users SET users_name = $1, users_email = $2 WHERE users_name = $3 OR users_email=$3;",
+        "updateValue":"UPDATE security.users SET users_{{var}} = $1 WHERE users_name = $2 OR users_email=$2;",
         "getAllUsers":"SELECT u.users_name, u.users_email, p.profile_name FROM security.users u JOIN security.profile p ON u.fk_profile_id = p.profile_id"
     },
     "tx":
