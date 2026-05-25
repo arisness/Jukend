@@ -38,30 +38,6 @@ export default class Security
         profileCheck.rows.forEach(row => this.profileMap.set(row.id, row.name));
     }
 
-    /**
-     * Resets the user's password
-     * @param {string} password 
-     * @param {string} email 
-     * @returns {Promise<string>}
-     */
-    async resetPassword(password, email)
-    {
-        try
-        {
-            const passwordCheck = await runQuery([[queries.user.verifyUser, [email]]]);
-            if (password === passwordCheck.rows[0].users_password) return "This is your current password.";
-            else
-            {
-                await runQuery([[queries.user.updatePassword, [password, email]]]);
-                return "Password updated successfully."
-            }
-        }
-        catch (error)
-        {
-            logger.error(error);
-            return `Internal error while reseting password: ${error}`;
-        }        
-    }
 
     //Methods for permissions management
     /**

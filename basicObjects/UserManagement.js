@@ -1,3 +1,5 @@
+import {verifyTokens, removeToken} from '../passwordRecovery/tokenManager.js';
+
 class UserManagement
 {
     async getAllUsers() {
@@ -39,7 +41,27 @@ class UserManagement
         }
     }
 
-    async updatePassword(password, email) {runQuery([[queries.user.updatePassword, [password, email]]]);}
+    async resetPassword(req,res){
+        const {token, password} = req.body;
+        const result = await verifyTokens(token, password);
+        if (result.sts === 'error') return res.status(404).json({status: result.sts, message: result.msg});
+
+        const passwordCheck = await runQuery([[queries.user.verifyUser, [result.email]]]);
+        if (password === passwordCheck.rows[0].users_password) return res.status(404).json({status: 'error', message: 'This is your current password.'});
+
+        if (result.sts === 'success'){
+            try{
+                await runQuery([[queries.user.updatePassword, [password, result.email]]]);
+                removeToken(result.resetTokenIndex, `Token ${token} deleted after successful password update.`);
+                return res.status(200).json({status: 'success', message: 'Password updated successfully.'});
+            }
+            catch (error)
+            {
+                logger.error(error);
+                return res.status(500).json({status: 'error', message: `Internal error while resetting password: ${error}`});
+            } 
+        } else return res.status(404).json({status: result.sts, message: result.msg});
+    }
 
     async deleteUser(username) {await runQuery([[queries.user.deleteUser, [username]]]);}
 

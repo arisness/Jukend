@@ -2,7 +2,7 @@ import crypto from 'crypto';
 import {sendMail} from './mailSender.js';
 const passwordResetTokens = [];
 
-const removeToken = (index, msg) =>
+export const removeToken = (index, msg) =>
 {
     if (index > -1) passwordResetTokens.splice(index, 1);
     if (msg) console.log(msg);
@@ -22,6 +22,8 @@ export const addTokens = (username, email) =>
         }
     }
     passwordResetTokens.push({token: token, expireDate: expirationTime, email: email});
+    console.log(token);
+    return true;
     if (sendMail(username, email, token)) return true;
     else return false;
 }
@@ -33,11 +35,9 @@ export const findTokens = (tokenTest) =>
     else return false;
 }
 
-export const verifyTokens = async (token, password) =>
-{
+export const verifyTokens = async (token, password) =>{
     let resetTokenIndex = -1;
-    const foundToken = passwordResetTokens.find((t, index) =>
-    {
+    const foundToken =  await passwordResetTokens.find((t, index) =>{
         if (t.token === token)
         {
             resetTokenIndex = index;
@@ -46,8 +46,7 @@ export const verifyTokens = async (token, password) =>
         return false;
     });
 
-    if (!foundToken || foundToken.expireDate < new Date())
-    {
+    if (!foundToken || foundToken.expireDate < new Date()){
         removeToken(resetTokenIndex, `Token ${token} removed because it was invalid/expired.`);
         return {sts: "error", msg: "Invalid or expired token. Please request a new password reset."};
     }
@@ -59,27 +58,6 @@ export const verifyTokens = async (token, password) =>
         removeToken(resetTokenIndex);
         return {sts: "error", msg: "An error occurred during password reset. Please try again."};
     }
-
-    try
-    {
-        const message = await security.resetPassword(password, userToReset);
-        if (message !== "Password updated successfully.")
-        {
-            removeToken(resetTokenIndex, message);
-            return {sts: "error", msg: message};
-        }
-        else
-        {
-            await security.resetPassword(password, userToReset);
-            removeToken(resetTokenIndex, `Token ${token} deleted after successful password update.`);
     
-            console.log(`Password for user ${userToReset} updated successfully.`);
-            return {sts: "success", msg: "Password updated successfully"};
-        }
-    }
-    catch (error)
-    {
-        console.error("Error processing password reset:", error);
-        return {sts: "error", msg: "An error occurred during password reset. Please try again."};
-    }
+    return {sts:"success", msg: "Token verified, proceeding with password reset.", email: userToReset, resetTokenIndex: resetTokenIndex};
 }
