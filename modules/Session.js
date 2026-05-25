@@ -30,18 +30,33 @@ export default class Session
         }
     }
 
-    closeSession(req, res)
-    {
-        try
-        {
-            req.session.destroy();
-            res.clearCookie('connect.sid');
-            return true;
+    async login(req, res){
+        if (this.checkSession(req)){
+            logger.error("Session already exists for this user.");
+            return res.status(200).json({status: 'success', message: 'User already has an active session.'});
         }
-        catch (error)
-        {
-            logger.error(error);
-            return false;
+        else{
+            const authResult = await this.authenticate(req);
+            if (authResult.success)
+            {
+                console.log(req.session);
+                return res.status(200).json({status: 'success', message: authResult.message, user: req.session.user,
+                    profile: req.session.profile});
+            }
+            else return res.status(401).json({status: 'error', message: authResult.message, user: '', profile: ''});
         }
+    }
+
+    closeSession(req, res){
+        if (this.checkSession(req)){
+            try {
+                req.session.destroy();
+                res.clearCookie('connect.sid');
+                return res.status(200).json({status: "success", message: "Session destroyed"});
+            } catch (error) {
+                logger.error(error);
+                return res.status(500).json({status: "error", message: "Failed to destroy session"});
+            }}
+        else return res.status(200).json({status: "success", message: "No active session to destroy."});
     }
 }
