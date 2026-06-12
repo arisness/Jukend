@@ -39,9 +39,8 @@ export default class Session
             const authResult = await this.authenticate(req);
             if (authResult.success)
             {
-                console.log(req.session);
-                return res.status(200).json({status: 'success', message: authResult.message, user: req.session.user,
-                    profile: req.session.profile});
+                const userData = await runQuery([[queries.user.getUser, [req.session.user]]]);
+                return res.status(200).json({status: 'success', data: userData.rows[0]});
             }
             else return res.status(401).json({status: 'error', message: authResult.message, user: '', profile: ''});
         }
