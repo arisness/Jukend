@@ -1,0 +1,23 @@
+INSERT INTO security.object (object_name) VALUES
+    ('');
+
+
+-- =====================================================
+-- 2️⃣ Insertar en 'method' (obteniendo fk_object_id desde object)
+-- =====================================================
+INSERT INTO security.method (method_name, fk_object_id) VALUES 
+    ('', (SELECT object_id FROM security.object WHERE object_name = ''));
+
+
+-- =====================================================
+-- 3️⃣ Insertar en 'transaction'
+-- =====================================================
+INSERT INTO security.transaction (transaction_id, fk_method_id) VALUES
+    (1, (SELECT method_id FROM security.method WHERE method_name = ''));
+
+
+-- =====================================================
+-- 4️⃣ Insertar en 'method_permission'
+-- =====================================================
+INSERT INTO security.method_permission (fk_transaction_id, fk_profile_id) VALUES
+    (1, 1);
