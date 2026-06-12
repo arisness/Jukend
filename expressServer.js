@@ -3,6 +3,7 @@ import userRoutes from './routes/userRoutes.js';
 import {runQuery} from './DBComponent.js';
 import * as classes from './modules/classesIndex.js';
 import {executeMethod} from './executeMethod.js';
+//import supabaseManager from './basicObjects/Supabase.js';
 import fs from 'fs';
 import { loadEnvFile } from 'process';
 loadEnvFile('./config/.env');
@@ -23,9 +24,12 @@ async function loadConfig(){
     global.security = new classes.Security();
     global.logger = new classes.Logger();
     global.sessionHandler = new classes.Session(app);
+    //global.supabaseManager = supabaseManager;
 }
 await loadConfig()
-
+// Supabase config to upload images
+//app.use(express.json({ limit: '50mb' }));
+//app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(express.json());
 //app.use(cors({origin: `https://${ip}:5173`, credentials: true}));
@@ -53,9 +57,11 @@ app.post('/toProcess', async (req, res) =>
         try
         {
             const permsCheck = security.getPermission(req);
-            if (permsCheck)
-            {
-                const executeReq = {...permsCheck, params: req.body.params || []};
+            if (permsCheck){   
+                if (req.body.params && req.body.params.length > 0) req.body.params[0].userSession = req.session.user;
+                const executeReq = {...permsCheck, params: req.body.params?.length > 0 
+                    ? [{ ...req.body.params[0], userSession: req.session.user }, ...req.body.params.slice(1)]
+                    : [{ userSession: req.session.user }]};
                 const results = await executeMethod(executeReq);
                 return res.status(200).json({message: "Results sent!", output: results});
             }

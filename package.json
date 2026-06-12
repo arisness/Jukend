@@ -3,9 +3,11 @@
     "type": "module",
     "private": true,
     "version": "1.0.0",
-    "scripts": {"dev": "node expressServer.js"},
-    "dependencies":
-    {
+    "scripts": {
+        "dev": "node expressServer.js"
+    },
+    "dependencies": {
+        "@supabase/supabase-js": "^2.106.2",
         "cors": "^2.8.5",
         "express": "^4.21.2",
         "express-session": "^1.18.1",
